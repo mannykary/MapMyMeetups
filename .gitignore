@@ -7,3 +7,4 @@
 *.so
 *.dex
 src/bin
+res/values/apikeys.xml

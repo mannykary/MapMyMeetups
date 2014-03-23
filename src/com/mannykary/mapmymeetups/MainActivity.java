@@ -166,7 +166,6 @@ public class MainActivity extends Activity implements
 		try {
 			data = getMeetups(jq);
 		} catch (JSONException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} 
 		
