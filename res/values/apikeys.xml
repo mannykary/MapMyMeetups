@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- REPLACE STRINGS BELOW WITH YOUR API KEYS -->
+    
+    <string name="GoogleMapsKey">DUMMY_KEY</string>
+    <string name="MeetupKey">DUMMY_KEY</string>
+    
+</resources>
