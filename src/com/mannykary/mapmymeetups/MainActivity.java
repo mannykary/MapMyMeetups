@@ -16,6 +16,7 @@ import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.location.LocationClient;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.GoogleMap.InfoWindowAdapter;
 import com.google.android.gms.maps.GoogleMap.OnInfoWindowClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMapClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMapLongClickListener;
@@ -43,6 +44,7 @@ import android.content.IntentSender;
 import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.Menu;
+import android.view.View;
 import android.widget.Toast;
 
 public class MainActivity extends Activity implements
@@ -56,7 +58,9 @@ public class MainActivity extends Activity implements
 	private Location mCurrentLocation;
 	private String query;
 	private HashMap<String,String> data;
-	private String eventURL;
+	private HashMap<String, EventInfo> eventMarkerMap;
+	private String eventId;
+	private EventInfo event;
 	private int numEvents;
 	private final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
 	
@@ -169,25 +173,54 @@ public class MainActivity extends Activity implements
 			e.printStackTrace();
 		} 
 		
-		SimpleDateFormat sdf = new SimpleDateFormat("EEE, MMM d, yyyy h:mm a");
-				
+		SimpleDateFormat sdf = new SimpleDateFormat("EEE, h:mm a");
+		
+		eventMarkerMap = new HashMap<String, EventInfo>();
+		
 		for( int i = 0; i < numEvents; i++ ) {
 			
 			Log.i("MapMyMeetups", "event_" + i + "_lat: " + data.get("event_" + i + "_lat"));
 			Log.i("MapMyMeetups", "event_" + i + "_lon: " + data.get("event_" + i + "_lon"));
 			
+			event = new EventInfo(
+					new LatLng((Float.parseFloat(data.get("event_" + i + "_lat"))), 
+					 		    Float.parseFloat(data.get("event_" + i + "_lon"))),
+					data.get("event_" + i + "_name"),
+					new Date(Long.parseLong(data.get("event_" + i + "_time"))),
+					data.get("event_" + i + "_url"));
+			
+			eventMarkerMap.put(data.get("event_" + i + "_id"), event);
+					 		    		
 			mMap.addMarker(new MarkerOptions()
-			.position(new LatLng((Float.parseFloat(data.get("event_" + i + "_lat"))), 
-								  Float.parseFloat(data.get("event_" + i + "_lon"))))
-			.title(data.get("event_" + i + "_name"))
-			.snippet(sdf.format(new Date(Long.parseLong(data.get("event_" + i + "_time")))))
+			.position(event.getLatLng())
+			.title(sdf.format(event.getDate()) + " : " + event.getTitle() )
+			.snippet(event.getUrl())
 			.icon(BitmapDescriptorFactory
 					.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
 			.alpha(0.7f));
 			
 			Log.i("MapMyMeetups", data.get("event_" + i + "_url"));
 			
-			eventURL = "event_" + i + "_url";
+			eventId = "event_" + i + "_id";
+			
+//			mMap.setInfoWindowAdapter(new InfoWindowAdapter() {
+//
+//				private final View contents = 
+//						getLayoutInflater().inflate(R.layout.content, null);
+//				
+//				@Override
+//				public View getInfoContents(Marker arg0) {
+//					// TODO Auto-generated method stub
+//					return null;
+//				}
+//
+//				@Override
+//				public View getInfoWindow(Marker arg0) {
+//					// TODO Auto-generated method stub
+//					return null;
+//				}
+//			});
+			
 			
 			//TODO figure out how to handle an info window click.
 			// need to get URL of the event and pass it to click listener
@@ -196,7 +229,7 @@ public class MainActivity extends Activity implements
 		      		  new OnInfoWindowClickListener(){
 		      		    public void onInfoWindowClick(Marker marker){
 		      		    	Intent intent = new Intent(Intent.ACTION_VIEW, 
-		      		    				   Uri.parse(data.get(eventURL)) );
+		      		    				   Uri.parse(marker.getSnippet()));
 		      		    	startActivity(intent);
 		      		    }
 		      		  }
@@ -238,6 +271,7 @@ public class MainActivity extends Activity implements
 			data.put("event_" + i + "_desc", results.getJSONObject(i).getString("description"));
 			data.put("event_" + i + "_name", results.getJSONObject(i).getString("name"));
 			data.put("event_" + i + "_group", results.getJSONObject(i).getJSONObject("group").getString("name"));
+			data.put("event_" + i + "_id", results.getJSONObject(i).getString("id"));
 			
 			Log.i("MapMyMeetups", "event_" + i + "_lon: " + data.get("event_" + i + "_lon"));
 			Log.i("MapMyMeetups", "event_" + i + "_lat: " + data.get("event_" + i + "_lat"));
@@ -246,6 +280,7 @@ public class MainActivity extends Activity implements
 			Log.i("MapMyMeetups", "event_" + i + "_desc:" + data.get("event_" + i + "_desc"));
 			Log.i("MapMyMeetups", "event_" + i + "_name: " + data.get("event_" + i + "_name"));
 			Log.i("MapMyMeetups", "event_" + i + "_group: " + data.get("event_" + i + "_group"));
+			Log.i("MapMyMeetups", "event_" + i + "_id " + data.get("event_" + i + "_id"));
 		}
 		
 		return data;
