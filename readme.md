@@ -4,6 +4,8 @@ The Map My Meetups app uses the Google Maps and Meetup.com APIs to display all
 open events occurring within the next 24 hours in a 10 mile radius of a 
 user-specified location on a map.
 
+![Screenshot of Map My Meetups](https://raw.githubusercontent.com/mannykary/MapMyMeetups/master/MapMyMeetups_screenshot.png)
+
 The apk file is available in the bin folder, and can be manually installed onto
 an Android device that supports Google Play Services.
 
